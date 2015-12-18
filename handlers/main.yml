@@ -1,0 +1,4 @@
+---
+# handlers file for sparkfabrik.vsftp
+- name: restart vsftp
+  action: service name=vsftpd state=restarted

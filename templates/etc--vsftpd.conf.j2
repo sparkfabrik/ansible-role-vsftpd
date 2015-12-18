@@ -1,0 +1,59 @@
+listen=YES
+listen_port={{ vsftp_port }}
+connect_from_port_20=NO
+
+anonymous_enable=NO
+local_enable=YES
+local_umask=022
+
+dirmessage_enable=YES
+
+use_localtime=YES
+
+xferlog_enable=YES
+
+dirlist_enable=YES
+
+ftpd_banner={{ inventory_hostname }} FTP server
+
+chroot_local_user=YES
+secure_chroot_dir=/var/run/vsftpd/empty
+pam_service_name=vsftpd.virtual
+
+# Encript security settings
+#rsa_cert_file=/etc/ssl/private/vsftpd.pem
+#ssl_enable=YES
+#allow_anon_ssl=NO
+#force_local_data_ssl=YES
+#force_local_logins_ssl=YES
+#ssl_tlsv1=YES
+#ssl_sslv2=YES
+#ssl_sslv3=YES
+
+# Show hidden files and the "." and ".." folders.
+# Useful to not write over hidden files:
+force_dot_files=YES
+
+# Hide the info about the owner (user and group) of the files.
+hide_ids=YES
+
+virtual_use_local_privs=YES
+write_enable=YES
+guest_enable=YES
+guest_username=www-data
+user_sub_token=$USER
+local_root=/var/www/$USER
+chroot_local_user=YES
+allow_writeable_chroot=YES
+
+chown_uploads=YES
+chown_username=www-data
+
+## ISSUE RELATED TO https://bugs.launchpad.net/ubuntu/+source/vsftpd/+bug/1219857
+seccomp_sandbox=NO
+
+user_config_dir=/etc/vsftpd/user_conf
+
+pasv_enable=YES
+pasv_min_port=13220
+pasv_max_port=13225

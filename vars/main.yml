@@ -1,0 +1,7 @@
+---
+# vars file for sparkfabrik.vsftp
+vsftp:
+  accounts:
+    - username: ftpuser
+      password: ftppass
+      folder: /tmp/

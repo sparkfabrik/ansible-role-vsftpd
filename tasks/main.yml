@@ -1,0 +1,47 @@
+---
+# tasks file for sparkfabrik.vsft
+- name: Install
+  apt: pkg={{ item }} force=yes
+  with_items:
+    - vsftpd
+    - db-util
+  notify:
+    - restart vsftp
+
+- name: Create VSFTP virtual users PAM authentication
+  copy: src=etc--pam.d--vsftpd.virtual.j2 dest=/etc/pam.d/vsftpd.virtual
+  notify: 
+   - restart vsftp
+
+- name: Configure VSFTP server
+  template: src=etc--vsftpd.conf.j2 dest=/etc/vsftpd.conf
+  notify:
+    - restart vsftp
+
+- name: Ensure VSFTP server folder is created
+  file: path=/etc/vsftpd state=directory
+
+- name: Ensure VSFTP user specific settings folder is created
+  file: path=/etc/vsftpd/user_conf state=directory
+
+- name: Create VSFTP virtual users
+  template: src=etc--vsftpd--vusers.j2 dest=/etc/vsftpd/vusers
+  register: users
+
+- name: Create VSFTP virtual users configs
+  template: src=etc--vsftpd--user_conf--user.j2 dest=/etc/vsftpd/user_conf/{{ item.username }}
+  with_items: vsftp.accounts
+
+- name: Update VSFTP virtual users DB
+  command: db_load -T -t hash -f /etc/vsftpd/vusers /etc/vsftpd/vusers.db
+  when: users.changed
+
+- name: Ensure VSFTP virtual user DB is protected
+  file: path=/etc/vsftpd/vusers.db mode=0600 owner=root group=root
+
+- name: Ensure VSFTP virtual user config are protected
+  file: path=/etc/vsftpd/user_conf/{{ item.username }} mode=0600 owner=root group=root
+  with_items: vsftp.accounts
+  notify:
+    - restart vsftp
+
